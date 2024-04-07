@@ -31,5 +31,7 @@ namespace Kupa.Api.Models
         public EventStatus Status { get; set; }
 
         public Location Location { get; set; }
+
+        public EventSurveyQuestion[] EventSurveyQuestions { get; set; }
     }
 }

@@ -14,6 +14,10 @@ namespace Kupa.Api.Data
 
         public DbSet<Event> Events { get; set; }
 
+        public DbSet<EventSurveyQuestion> EventSurveyQuestions { get; set; }
+
+        public DbSet<EventSurveyAnswer> EventSurveyAnswers { get; set; }
+
         public DbSet<Location> Locations { get; set; }
 
         public DbSet<EventStatus> EventStatuses { get; set; }
