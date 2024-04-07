@@ -28,6 +28,8 @@ namespace Kupa.Api.Models
 
         public DateTime LastUpdatedAt { get; set; }
 
+        public EventStatus Status { get; set; }
+
         public Location Location { get; set; }
     }
 }
