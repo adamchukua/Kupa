@@ -27,5 +27,7 @@ namespace Kupa.Api.Models
         public DateTime CreatedAt { get; set; }
 
         public DateTime LastUpdatedAt { get; set; }
+
+        public Location Location { get; set; }
     }
 }

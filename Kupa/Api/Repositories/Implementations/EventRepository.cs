@@ -41,9 +41,20 @@ namespace Kupa.Api.Repositories.Implementations
             await DeleteItemAsync(eventObject);
         }
 
-        public async Task ExistsAsync(int id)
+        public async Task<bool> ExistsByIdAsync(int id)
         {
-            await ExistsByIdAsync(id);
+            return await ExistsAsync(e => e.Id == id);
+        }
+
+        public async Task<bool> ExistsByLocationIdAsync(int locationId)
+        {
+            return await ExistsAsync(e => e.LocationId == locationId);
+        }
+
+        public async Task<int> CountEventsByLocationIdAsync(int locationId)
+        {
+            return await Where(e =>e.LocationId == locationId)
+                .CountAsync();
         }
     }
 }

@@ -14,6 +14,10 @@ namespace Kupa.Api.Repositories.Interfaces
 
         Task DeleteAsync(Event eventObject);
 
-        Task ExistsAsync(int id);
+        Task<bool> ExistsByIdAsync(int id);
+
+        Task<bool> ExistsByLocationIdAsync(int locationId);
+
+        Task<int> CountEventsByLocationIdAsync(int locationId);
     }
 }

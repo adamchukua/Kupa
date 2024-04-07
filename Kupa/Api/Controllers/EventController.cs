@@ -20,14 +20,15 @@ namespace Kupa.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateEvent(EventDto eventDto)
+        public async Task<IActionResult> CreateEvent(NewEventDto newEventDto)
         {
-            if (eventDto == null)
+            if (newEventDto == null)
             {
                 return BadRequest("Event data is null.");
             }
 
-            Event eventObject = _mapper.Map<Event>(eventDto);
+            Event eventObject = _mapper.Map<Event>(newEventDto);
+
             await _eventService.CreateEventAsync(eventObject);
             return Ok(eventObject);
         }
@@ -53,14 +54,14 @@ namespace Kupa.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateEvent(int id, [FromBody] EventDto eventDto)
+        public async Task<IActionResult> UpdateEvent(int id, [FromBody] UpdateEventDto updateEventDto)
         {
-            if (eventDto == null)
+            if (updateEventDto == null)
             {
                 return BadRequest("Event data is null.");
             }
 
-            await _eventService.UpdateEventAsync(id, eventDto);
+            await _eventService.UpdateEventAsync(id, updateEventDto);
             return NoContent();
         }
 

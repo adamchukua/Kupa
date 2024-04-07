@@ -11,7 +11,7 @@ namespace Kupa.Api.Services.Interfaces
 
         Task CreateEventAsync(Event eventObject);
 
-        Task UpdateEventAsync(int id, EventDto eventDto);
+        Task UpdateEventAsync(int id, UpdateEventDto eventDto);
 
         Task DeleteEventAsync(int id);
     }
