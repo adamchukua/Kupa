@@ -1,4 +1,8 @@
-using Kupa.Api.Models;
+using Kupa.Api.Data;
+using Kupa.Api.Repositories.Implementations;
+using Kupa.Api.Repositories.Interfaces;
+using Kupa.Api.Services.Implementations;
+using Kupa.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +42,10 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
     };
 });
+
+builder.Services.AddTransient<IEventService, EventService>();
+builder.Services.AddTransient<IEventRepository, EventRepository>();
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 
