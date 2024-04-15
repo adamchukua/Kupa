@@ -15,6 +15,8 @@ namespace Kupa.Api.Repositories.Implementations
         public async Task<Event> GetByIdAsync(int id)
         {
             return await Where(e => e.Id == id)
+                .Include(e => e.EventSurveyQuestions)
+                    .ThenInclude(e => e.EventSurveyAnswers)
                 .FirstOrDefaultAsync();
         }
 

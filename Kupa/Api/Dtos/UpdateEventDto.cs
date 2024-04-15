@@ -11,5 +11,7 @@ namespace Kupa.Api.Dtos
         public LocationTypeId LocationTypeId { get; set; }
 
         public string Location { get; set; }
+
+        public List<SurveyQuestionDto> SurveyQuestions { get; set; }
     }
 }

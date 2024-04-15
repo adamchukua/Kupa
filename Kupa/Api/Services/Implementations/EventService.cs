@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Kupa.Api.Data;
 using Kupa.Api.Dtos;
 using Kupa.Api.Models;
 using Kupa.Api.Repositories.Interfaces;
@@ -8,15 +9,18 @@ namespace Kupa.Api.Services.Implementations
 {
     public class EventService : IEventService
     {
+        private readonly ApplicationDbContext _context;
         private readonly IEventRepository _eventRepository;
         private readonly ILocationRepository _locationRepository;
         private readonly IMapper _mapper;
 
         public EventService(
+            ApplicationDbContext context,
             IEventRepository eventRepository,
             ILocationRepository locationRepository,
             IMapper mapper)
         {
+            _context = context;
             _eventRepository = eventRepository;
             _locationRepository = locationRepository;
             _mapper = mapper;
@@ -58,20 +62,36 @@ namespace Kupa.Api.Services.Implementations
                 throw new KeyNotFoundException($"Event with id {id} not found.");
             }
 
-            await _eventRepository.DeleteAsync(eventObject);
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    if (eventObject.EventSurveyQuestions != null)
+                    {
+                        _context.RemoveRange(eventObject.EventSurveyQuestions);
+                    }
 
-            Location location = await _locationRepository.GetByIdAsync(eventObject.LocationId);
+                    await _eventRepository.DeleteAsync(eventObject);
+
+                    Location location = await _locationRepository.GetByIdAsync(eventObject.LocationId);
             
-            if (location == null)
-            {
-                throw new KeyNotFoundException($"Location with id {id} not found.");
-            }
+                    if (location == null)
+                    {
+                        throw new KeyNotFoundException($"Location with id {id} not found.");
+                    }
 
-            bool eventsWithLocationExists = await _eventRepository.ExistsByLocationIdAsync(location.Id);
+                    bool eventsWithLocationExists = await _eventRepository.ExistsByLocationIdAsync(location.Id);
 
-            if (!eventsWithLocationExists)
-            {
-                await _locationRepository.DeleteAsync(location);
+                    if (!eventsWithLocationExists)
+                    {
+                        await _locationRepository.DeleteAsync(location);
+                    }
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
             }
         }
 

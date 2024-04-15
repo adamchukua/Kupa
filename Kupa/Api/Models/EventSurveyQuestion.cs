@@ -10,7 +10,7 @@ namespace Kupa.Api.Models
         public int EventId { get; set; }
 
         [Required]
-        public string Question {  get; set; }
+        public required string Question {  get; set; }
 
         public bool IsRequired { get; set; }
 
@@ -19,5 +19,7 @@ namespace Kupa.Api.Models
         public DateTime LastUpdatedAt { get; set; }
 
         public Event Event { get; set; }
+
+        public EventSurveyAnswer[] EventSurveyAnswers { get; set; }
     }
 }
