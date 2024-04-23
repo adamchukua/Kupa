@@ -15,6 +15,7 @@ namespace Kupa.Api.Repositories.Implementations
         public async Task<Event> GetByIdAsync(int id)
         {
             return await Where(e => e.Id == id)
+                .Include(e => e.EventComments)
                 .Include(e => e.EventSurveyQuestions)
                     .ThenInclude(e => e.EventSurveyAnswers)
                 .FirstOrDefaultAsync();
@@ -27,14 +28,35 @@ namespace Kupa.Api.Repositories.Implementations
 
         public async Task AddAsync(Event eventObject)
         {
-            eventObject.CreatedAt = DateTime.Now;
-            eventObject.LastUpdatedAt = DateTime.Now;
+            DateTime now = DateTime.Now;
+            eventObject.CreatedAt = now;
+            eventObject.LastUpdatedAt = now;
+
+            if (eventObject.EventSurveyQuestions != null)
+            {
+                foreach (var question in eventObject.EventSurveyQuestions)
+                {
+                    question.CreatedAt = now;
+                    question.LastUpdatedAt = now;
+                }
+            }
+
             await AddItemAsync(eventObject);
         }
 
         public async Task UpdateAsync(Event eventObject)
         {
-            eventObject.LastUpdatedAt = DateTime.Now;
+            DateTime now = DateTime.Now;
+            eventObject.LastUpdatedAt = now;
+
+            if (eventObject.EventSurveyQuestions != null)
+            {
+                foreach (var question in eventObject.EventSurveyQuestions)
+                {
+                    question.LastUpdatedAt = now;
+                }
+            }
+
             await UpdateItemAsync(eventObject);
         }
 

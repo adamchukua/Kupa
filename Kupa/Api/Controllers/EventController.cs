@@ -2,6 +2,7 @@
 using Kupa.Api.Dtos;
 using Kupa.Api.Models;
 using Kupa.Api.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Kupa.Api.Controllers
@@ -20,6 +21,7 @@ namespace Kupa.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateEvent(NewEventDto newEventDto)
         {
             if (newEventDto == null)
@@ -54,6 +56,7 @@ namespace Kupa.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateEvent(int id, [FromBody] UpdateEventDto updateEventDto)
         {
             if (updateEventDto == null)
@@ -66,6 +69,7 @@ namespace Kupa.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteEvent(int id)
         {
             await _eventService.DeleteEventAsync(id);

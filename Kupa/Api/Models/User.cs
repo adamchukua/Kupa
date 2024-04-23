@@ -2,7 +2,7 @@
 
 namespace Kupa.Api.Models
 {
-    public class User : IdentityUser
+    public class User : IdentityUser<int>
     {
     }
 }

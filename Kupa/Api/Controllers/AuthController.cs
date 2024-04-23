@@ -1,4 +1,5 @@
 ﻿using Kupa.Api.Dtos;
+using Kupa.Api.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -12,13 +13,13 @@ namespace Kupa.Api.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
         private readonly IConfiguration _configuration;
 
         public AuthController(
-            UserManager<IdentityUser> userManager, 
-            SignInManager<IdentityUser> signInManager,
+            UserManager<User> userManager, 
+            SignInManager<User> signInManager,
             IConfiguration configuration)
         {
             _userManager = userManager;
@@ -29,7 +30,7 @@ namespace Kupa.Api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto model)
         {
-            IdentityUser user = new IdentityUser { UserName = model.Email, Email = model.Email };
+            User user = new User { UserName = model.Email, Email = model.Email };
             IdentityResult result = await _userManager.CreateAsync(user, model.Password);
             string token;
 
@@ -48,7 +49,7 @@ namespace Kupa.Api.Controllers
         {
             Microsoft.AspNetCore.Identity.SignInResult result = 
                 await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
-            IdentityUser? user;
+            User? user;
             string token;
 
             if (result.Succeeded)
@@ -61,7 +62,7 @@ namespace Kupa.Api.Controllers
             return Unauthorized();
         }
 
-        private string GenerateJwtToken(IdentityUser user)
+        private string GenerateJwtToken(User user)
         {
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
             byte[] key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
@@ -69,7 +70,7 @@ namespace Kupa.Api.Controllers
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Email, user.Email),
                 }),
                 // Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiryMinutes"])),

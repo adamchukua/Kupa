@@ -1,5 +1,6 @@
 ﻿using Kupa.Api.Enums;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Kupa.Api.Models
 {
@@ -10,6 +11,9 @@ namespace Kupa.Api.Models
 
         [Required]
         public EventStatusId StatusId { get; set; }
+
+        [ForeignKey("User")]
+        public int CreatedByUserId { get; set; }
 
         public required string Title { get; set; }
 
@@ -32,6 +36,10 @@ namespace Kupa.Api.Models
 
         public Location Location { get; set; }
 
-        public EventSurveyQuestion[] EventSurveyQuestions { get; set; }
+        public IEnumerable<EventSurveyQuestion> EventSurveyQuestions { get; set; }
+
+        public IEnumerable<EventComment> EventComments { get; set; }
+
+        public User User { get; set; }
     }
 }

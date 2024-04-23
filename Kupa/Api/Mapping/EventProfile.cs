@@ -17,7 +17,8 @@ namespace Kupa.Api.Mapping
                     TypeId = src.LocationTypeId,
                     Address = src.LocationTypeId == LocationTypeId.Offline ? src.Location : null,
                     Url = src.LocationTypeId == LocationTypeId.Online ? src.Location : null
-                }));
+                }))
+                .ForMember(dest => dest.EventSurveyQuestions, opt => opt.MapFrom(src => src.SurveyQuestions));
 
             CreateMap<UpdateEventDto, Event>()
                 .ForMember(dest => dest.Location, opt => opt.MapFrom(src => new Location
@@ -25,7 +26,8 @@ namespace Kupa.Api.Mapping
                     TypeId = src.LocationTypeId,
                     Address = src.LocationTypeId == LocationTypeId.Offline ? src.Location : null,
                     Url = src.LocationTypeId == LocationTypeId.Online ? src.Location : null
-                }));
+                }))
+                .ForMember(dest => dest.EventSurveyQuestions, opt => opt.MapFrom(src => src.SurveyQuestions));
         }
     }
 }

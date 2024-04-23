@@ -1,18 +1,20 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Kupa.Api.Models
 {
-    public class EventSurveyQuestion
+    public class EventComment
     {
         [Key]
         public int Id { get; set; }
 
         public int EventId { get; set; }
 
-        [Required]
-        public required string Question {  get; set; }
+        [ForeignKey("User")]
+        public int CreatedByUserId { get; set; }
 
-        public bool IsRequired { get; set; }
+        [Required]
+        public required string Comment { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
@@ -20,6 +22,6 @@ namespace Kupa.Api.Models
 
         public Event Event { get; set; }
 
-        public IEnumerable<EventSurveyAnswer> EventSurveyAnswers { get; set; }
+        public User User { get; set; }
     }
 }

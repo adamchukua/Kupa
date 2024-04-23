@@ -64,6 +64,15 @@ namespace Kupa.Api.Repositories.Base
                 .SaveChangesAsync();
         }
 
+        public virtual async Task DeleteRangeAsync(IEnumerable<T> entities)
+        {
+            _context
+                .Set<T>()
+                .RemoveRange(entities);
+            await _context
+                .SaveChangesAsync();
+        }
+
         public virtual async Task<bool> ExistsByIdAsync(object id)
         {
             var entity = await _context

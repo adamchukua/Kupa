@@ -1,11 +1,12 @@
 ﻿using Kupa.Api.Enums;
 using Kupa.Api.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Kupa.Api.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, int>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -21,6 +22,8 @@ namespace Kupa.Api.Data
         public DbSet<Location> Locations { get; set; }
 
         public DbSet<EventStatus> EventStatuses { get; set; }
+
+        public DbSet<EventComment> EventComments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -42,6 +45,18 @@ namespace Kupa.Api.Data
                 new EventStatus { Id = EventStatusId.Completed, Name = "Completed" },
                 new EventStatus { Id = EventStatusId.Cancelled, Name = "Cancelled" }
             );
+
+            builder.Entity<Event>()
+                .HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.CreatedByUserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<EventComment>()
+                .HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.CreatedByUserId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }
