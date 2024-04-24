@@ -46,6 +46,15 @@ namespace Kupa.Api.Repositories.Base
                 .SaveChangesAsync();
         }
 
+        public virtual async Task AddRangeAsync(T[] enitities)
+        {
+            await _context
+                .Set<T>()
+                .AddRangeAsync(enitities);
+            await _context
+                .SaveChangesAsync();
+        }
+
         public virtual async Task UpdateItemAsync(T entity)
         {
             _context

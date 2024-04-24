@@ -24,7 +24,7 @@ namespace Kupa.Api.Services.Implementations
 
             if (UserId == null)
             {
-                return;
+                throw new UnauthorizedAccessException("Not authorized");
             }
 
             comment.CreatedByUserId = (int)UserId;

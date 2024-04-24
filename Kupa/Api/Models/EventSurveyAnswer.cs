@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Kupa.Api.Models
 {
@@ -8,6 +9,9 @@ namespace Kupa.Api.Models
         public int Id { get; set; }
 
         public int EventSurveyQuestionId { get; set; }
+
+        [ForeignKey("User")]
+        public int CreatedByUserId { get; set; }
 
         public required string Answer {  get; set; }
 

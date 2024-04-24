@@ -37,7 +37,11 @@ namespace Kupa.Api.Data
             builder.Entity<Location>()
                 .HasIndex(l => l.Url)
                 .IsUnique()
-            .HasFilter("[Url] IS NOT NULL");
+                .HasFilter("[Url] IS NOT NULL");
+
+            builder.Entity<EventSurveyAnswer>()
+                .HasIndex(e => new { e.EventSurveyQuestionId, e.CreatedByUserId })
+                .IsUnique();
 
             builder.Entity<EventStatus>().HasData(
                 new EventStatus { Id = EventStatusId.Pending, Name = "Pending" },

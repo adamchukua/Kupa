@@ -4,9 +4,9 @@ using Kupa.Api.Models;
 
 namespace Kupa.Api.Mapping
 {
-    public class SurveyQuestionProfile : Profile
+    public class EventSurveyQuestionProfile : Profile
     {
-        public SurveyQuestionProfile()
+        public EventSurveyQuestionProfile()
         {
             CreateMap<SurveyQuestionDto, EventSurveyQuestion>();
         }
