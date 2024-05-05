@@ -15,6 +15,9 @@ namespace Kupa.Api.Models
         [ForeignKey("User")]
         public int CreatedByUserId { get; set; }
 
+        [ForeignKey("Category")]
+        public int CategoryId { get; set; }
+
         public required string Title { get; set; }
 
         public string? Description { get; set; }
@@ -35,6 +38,8 @@ namespace Kupa.Api.Models
         public virtual EventStatus Status { get; set; }
 
         public virtual Location Location { get; set; }
+
+        public virtual Category Category { get; set; }
 
         public virtual User User { get; set; }
 

@@ -16,6 +16,10 @@ namespace Kupa.Api.Dtos
 
         public int LocationId { get; set; }
 
+        public int CityId { get; set; }
+
+        public int CategoryId { get; set; }
+
         public DateTime CreatedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }
