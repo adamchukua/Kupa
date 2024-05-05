@@ -2,24 +2,24 @@
 
 namespace Kupa.Api.Models
 {
-    public class EventSurveyQuestion
+    public class EventRegistration
     {
         [Key]
         public int Id { get; set; }
 
+        public int UserId { get; set; }
+
         public int EventId { get; set; }
 
-        [Required]
-        public required string Question {  get; set; }
-
-        public bool IsRequired { get; set; }
-
         public DateTime CreatedAt { get; set; }
-
-        public DateTime LastUpdatedAt { get; set; }
 
         public virtual Event Event { get; set; }
 
         public virtual IEnumerable<EventSurveyAnswer> EventSurveyAnswers { get; set; }
+
+        public static EventRegistration CreateRegistration(int eventId, int userId)
+        {
+            return new EventRegistration { UserId = userId, EventId = eventId };
+        }
     }
 }

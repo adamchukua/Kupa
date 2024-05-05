@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Kupa.Migrations
 {
     /// <inheritdoc />
-    public partial class InitV3 : Migration
+    public partial class InitV4 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -276,7 +276,28 @@ namespace Kupa.Migrations
                         column: x => x.EventId,
                         principalTable: "Events",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EventRegistrations",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    EventId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EventRegistrations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_EventRegistrations_Events_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Events",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
@@ -299,7 +320,7 @@ namespace Kupa.Migrations
                         column: x => x.EventId,
                         principalTable: "Events",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
@@ -308,6 +329,7 @@ namespace Kupa.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    RegistrationId = table.Column<int>(type: "int", nullable: false),
                     EventSurveyQuestionId = table.Column<int>(type: "int", nullable: false),
                     CreatedByUserId = table.Column<int>(type: "int", nullable: false),
                     Answer = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -322,13 +344,19 @@ namespace Kupa.Migrations
                         column: x => x.CreatedByUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
+                        onDelete: ReferentialAction.NoAction);
+                    table.ForeignKey(
+                        name: "FK_EventSurveyAnswers_EventRegistrations_RegistrationId",
+                        column: x => x.RegistrationId,
+                        principalTable: "EventRegistrations",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_EventSurveyAnswers_EventSurveyQuestions_EventSurveyQuestionId",
                         column: x => x.EventSurveyQuestionId,
                         principalTable: "EventSurveyQuestions",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.InsertData(
@@ -392,6 +420,11 @@ namespace Kupa.Migrations
                 column: "EventId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_EventRegistrations_EventId",
+                table: "EventRegistrations",
+                column: "EventId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Events_CreatedByUserId",
                 table: "Events",
                 column: "CreatedByUserId");
@@ -416,6 +449,11 @@ namespace Kupa.Migrations
                 table: "EventSurveyAnswers",
                 columns: new[] { "EventSurveyQuestionId", "CreatedByUserId" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EventSurveyAnswers_RegistrationId",
+                table: "EventSurveyAnswers",
+                column: "RegistrationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_EventSurveyQuestions_EventId",
@@ -472,6 +510,9 @@ namespace Kupa.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "EventRegistrations");
 
             migrationBuilder.DropTable(
                 name: "EventSurveyQuestions");

@@ -12,11 +12,16 @@ namespace Kupa.Api.Controllers
     public class EventsController : ControllerBase
     {
         private readonly IEventService _eventService;
+        private readonly IRegistrationService _registrationService;
         private readonly IMapper _mapper;
 
-        public EventsController(IEventService eventService, IMapper mapper)
+        public EventsController(
+            IEventService eventService, 
+            IRegistrationService registrationService,
+            IMapper mapper)
         {
             _eventService = eventService;
+            _registrationService = registrationService;
             _mapper = mapper;
         }
 
@@ -73,6 +78,29 @@ namespace Kupa.Api.Controllers
         public async Task<IActionResult> DeleteEvent(int id)
         {
             await _eventService.DeleteEventAsync(id);
+            return NoContent();
+        }
+
+        [HttpPost("register/{eventId}")]
+        [Authorize]
+        public async Task<IActionResult> RegisterToEvent(int eventId, SurveyAnswerDto[] answersDto)
+        {
+            if (answersDto == null)
+            {
+                return BadRequest("Answers is null or empty.");
+            }
+
+            EventSurveyAnswer[] eventSurveyAnswers = _mapper.Map<EventSurveyAnswer[]>(answersDto);
+
+            await _registrationService.Register(eventId, eventSurveyAnswers);
+            return NoContent();
+        }
+
+        [HttpPost("unregister/{eventId}")]
+        [Authorize]
+        public async Task<IActionResult> UnregisterFromEvent(int eventId)
+        {
+            await _registrationService.Unregister(eventId);
             return NoContent();
         }
     }

@@ -8,6 +8,9 @@ namespace Kupa.Api.Models
         [Key]
         public int Id { get; set; }
 
+        public int RegistrationId { get; set; }
+
+        [ForeignKey("EventSurveyQuestion")]
         public int EventSurveyQuestionId { get; set; }
 
         [ForeignKey("User")]
@@ -19,8 +22,10 @@ namespace Kupa.Api.Models
 
         public DateTime LastUpdatedAt { get; set; }
 
-        public required EventSurveyQuestion EventSurveyQuestion { get; set; }
+        public virtual EventSurveyQuestion EventSurveyQuestion { get; set; }
 
-        public required User User { get; set; }
+        public virtual EventRegistration Registration { get; set; }
+
+        public virtual User User { get; set; }
     }
 }

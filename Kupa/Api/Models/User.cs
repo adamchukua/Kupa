@@ -4,6 +4,6 @@ namespace Kupa.Api.Models
 {
     public class User : IdentityUser<int>
     {
-        public UserProfile Profile { get; set; }
+        public virtual UserProfile Profile { get; set; }
     }
 }

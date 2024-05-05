@@ -86,6 +86,8 @@ builder.Services.AddTransient<IEventSurveyAnswerRepository, EventSurveyAnswerRep
 builder.Services.AddTransient<IEventSurveyAnswerService, EventSurveyAnswerService>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IRegistrationRepository, RegistrationRepository>();
+builder.Services.AddTransient<IRegistrationService, RegistrationService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();

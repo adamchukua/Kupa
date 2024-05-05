@@ -28,6 +28,8 @@ namespace Kupa.Api.Data
 
         public DbSet<EventComment> EventComments { get; set; }
 
+        public DbSet<EventRegistration> EventRegistrations { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

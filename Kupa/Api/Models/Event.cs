@@ -32,14 +32,16 @@ namespace Kupa.Api.Models
 
         public DateTime LastUpdatedAt { get; set; }
 
-        public EventStatus Status { get; set; }
+        public virtual EventStatus Status { get; set; }
 
-        public Location Location { get; set; }
+        public virtual Location Location { get; set; }
 
-        public IEnumerable<EventSurveyQuestion> EventSurveyQuestions { get; set; }
+        public virtual User User { get; set; }
 
-        public IEnumerable<EventComment> EventComments { get; set; }
+        public virtual IEnumerable<EventSurveyQuestion> EventSurveyQuestions { get; set; }
 
-        public User User { get; set; }
+        public virtual IEnumerable<EventComment> EventComments { get; set; }
+
+        public virtual IEnumerable<EventRegistration> EventRegistrations { get; set; }
     }
 }

@@ -14,7 +14,7 @@ namespace Kupa.Api.Models
 
         public string? Url { get; set; }
 
-        public IEnumerable<Event> Events { get; set; }
+        public virtual IEnumerable<Event> Events { get; set; }
 
         public static Location CreateNewLocation(Location location)
         {

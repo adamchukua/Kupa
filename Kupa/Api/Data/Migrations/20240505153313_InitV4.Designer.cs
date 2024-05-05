@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Kupa.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240505131623_InitV3")]
-    partial class InitV3
+    [Migration("20240505153313_InitV4")]
+    partial class InitV4
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -105,6 +105,30 @@ namespace Kupa.Migrations
                     b.ToTable("EventComments");
                 });
 
+            modelBuilder.Entity("Kupa.Api.Models.EventRegistration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EventId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.ToTable("EventRegistrations");
+                });
+
             modelBuilder.Entity("Kupa.Api.Models.EventStatus", b =>
                 {
                     b.Property<int>("Id")
@@ -165,9 +189,14 @@ namespace Kupa.Migrations
                     b.Property<DateTime>("LastUpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("RegistrationId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("RegistrationId");
 
                     b.HasIndex("EventSurveyQuestionId", "CreatedByUserId")
                         .IsUnique();
@@ -523,6 +552,17 @@ namespace Kupa.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Kupa.Api.Models.EventRegistration", b =>
+                {
+                    b.HasOne("Kupa.Api.Models.Event", "Event")
+                        .WithMany("EventRegistrations")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+                });
+
             modelBuilder.Entity("Kupa.Api.Models.EventSurveyAnswer", b =>
                 {
                     b.HasOne("Kupa.Api.Models.User", "User")
@@ -537,7 +577,15 @@ namespace Kupa.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Kupa.Api.Models.EventRegistration", "Registration")
+                        .WithMany("EventSurveyAnswers")
+                        .HasForeignKey("RegistrationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("EventSurveyQuestion");
+
+                    b.Navigation("Registration");
 
                     b.Navigation("User");
                 });
@@ -619,7 +667,14 @@ namespace Kupa.Migrations
                 {
                     b.Navigation("EventComments");
 
+                    b.Navigation("EventRegistrations");
+
                     b.Navigation("EventSurveyQuestions");
+                });
+
+            modelBuilder.Entity("Kupa.Api.Models.EventRegistration", b =>
+                {
+                    b.Navigation("EventSurveyAnswers");
                 });
 
             modelBuilder.Entity("Kupa.Api.Models.EventSurveyQuestion", b =>
