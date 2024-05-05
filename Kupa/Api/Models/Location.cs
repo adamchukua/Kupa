@@ -1,5 +1,6 @@
 ﻿using Kupa.Api.Enums;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Kupa.Api.Models
 {
@@ -12,9 +13,14 @@ namespace Kupa.Api.Models
 
         public string? Address { get; set; }
 
+        [ForeignKey("City")]
+        public int? CityId { get; set; }
+
         public string? Url { get; set; }
 
         public virtual IEnumerable<Event> Events { get; set; }
+
+        public virtual City City { get; set; }
 
         public static Location CreateNewLocation(Location location)
         {

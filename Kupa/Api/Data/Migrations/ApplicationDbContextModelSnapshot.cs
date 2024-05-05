@@ -22,6 +22,31 @@ namespace Kupa.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Kupa.Api.Models.City", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Hromada")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Region")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Cities");
+                });
+
             modelBuilder.Entity("Kupa.Api.Models.Event", b =>
                 {
                     b.Property<int>("Id")
@@ -29,6 +54,9 @@ namespace Kupa.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CityId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -59,6 +87,8 @@ namespace Kupa.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CityId");
 
                     b.HasIndex("CreatedByUserId");
 
@@ -243,6 +273,9 @@ namespace Kupa.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int>("CityId")
+                        .HasColumnType("int");
+
                     b.Property<int>("TypeId")
                         .HasColumnType("int");
 
@@ -254,6 +287,8 @@ namespace Kupa.Migrations
                     b.HasIndex("Address")
                         .IsUnique()
                         .HasFilter("[Address] IS NOT NULL");
+
+                    b.HasIndex("CityId");
 
                     b.HasIndex("Url")
                         .IsUnique()
@@ -505,6 +540,10 @@ namespace Kupa.Migrations
 
             modelBuilder.Entity("Kupa.Api.Models.Event", b =>
                 {
+                    b.HasOne("Kupa.Api.Models.City", null)
+                        .WithMany("Events")
+                        .HasForeignKey("CityId");
+
                     b.HasOne("Kupa.Api.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("CreatedByUserId")
@@ -598,6 +637,17 @@ namespace Kupa.Migrations
                     b.Navigation("Event");
                 });
 
+            modelBuilder.Entity("Kupa.Api.Models.Location", b =>
+                {
+                    b.HasOne("Kupa.Api.Models.City", "City")
+                        .WithMany("Locations")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("City");
+                });
+
             modelBuilder.Entity("Kupa.Api.Models.UserProfile", b =>
                 {
                     b.HasOne("Kupa.Api.Models.User", "User")
@@ -658,6 +708,13 @@ namespace Kupa.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Kupa.Api.Models.City", b =>
+                {
+                    b.Navigation("Events");
+
+                    b.Navigation("Locations");
                 });
 
             modelBuilder.Entity("Kupa.Api.Models.Event", b =>
