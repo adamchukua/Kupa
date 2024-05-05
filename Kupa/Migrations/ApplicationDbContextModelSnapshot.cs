@@ -4,7 +4,6 @@ using Kupa.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -12,11 +11,9 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Kupa.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240423055656_AddCreatedByUserIdEventSurveyAnswers")]
-    partial class AddCreatedByUserIdEventSurveyAnswers
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -169,7 +166,8 @@ namespace Kupa.Migrations
 
                     b.HasIndex("CreatedByUserId");
 
-                    b.HasIndex("EventSurveyQuestionId");
+                    b.HasIndex("EventSurveyQuestionId", "CreatedByUserId")
+                        .IsUnique();
 
                     b.ToTable("EventSurveyAnswers");
                 });
@@ -301,6 +299,46 @@ namespace Kupa.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("Kupa.Api.Models.UserProfile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Activity")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("BirthYear")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TelegramUsername")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("UserProfiles");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
@@ -512,6 +550,17 @@ namespace Kupa.Migrations
                     b.Navigation("Event");
                 });
 
+            modelBuilder.Entity("Kupa.Api.Models.UserProfile", b =>
+                {
+                    b.HasOne("Kupa.Api.Models.User", "User")
+                        .WithOne("Profile")
+                        .HasForeignKey("Kupa.Api.Models.UserProfile", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
@@ -578,6 +627,12 @@ namespace Kupa.Migrations
             modelBuilder.Entity("Kupa.Api.Models.Location", b =>
                 {
                     b.Navigation("Events");
+                });
+
+            modelBuilder.Entity("Kupa.Api.Models.User", b =>
+                {
+                    b.Navigation("Profile")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

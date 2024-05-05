@@ -1,4 +1,5 @@
-﻿using Kupa.Api.Enums;
+﻿using AutoMapper;
+using Kupa.Api.Enums;
 using Kupa.Api.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -12,6 +13,8 @@ namespace Kupa.Api.Data
             : base(options)
         {
         }
+
+        public DbSet<UserProfile> UserProfiles { get; set; }
 
         public DbSet<Event> Events { get; set; }
 

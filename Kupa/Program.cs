@@ -77,6 +77,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddTransient<IProfileRepository, ProfileRepository>();
 builder.Services.AddTransient<IEventService, EventService>();
 builder.Services.AddTransient<IEventRepository, EventRepository>();
 builder.Services.AddTransient<ILocationRepository, LocationRepository>();

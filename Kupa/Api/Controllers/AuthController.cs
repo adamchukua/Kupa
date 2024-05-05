@@ -1,5 +1,6 @@
 ﻿using Kupa.Api.Dtos;
 using Kupa.Api.Models;
+using Kupa.Api.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -15,15 +16,18 @@ namespace Kupa.Api.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly IProfileRepository _profileRepository;
         private readonly IConfiguration _configuration;
 
         public AuthController(
             UserManager<User> userManager, 
             SignInManager<User> signInManager,
+            IProfileRepository profileRepository,
             IConfiguration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _profileRepository = profileRepository;
             _configuration = configuration;
         }
 
@@ -37,6 +41,8 @@ namespace Kupa.Api.Controllers
             if (result.Succeeded)
             {
                 token = GenerateJwtToken(user);
+
+                await _profileRepository.CreateUserProfile(UserProfile.Create(user.Id));
 
                 return Ok(new { Token = token });
             }
