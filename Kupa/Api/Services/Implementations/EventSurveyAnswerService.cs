@@ -4,7 +4,7 @@ using Kupa.Api.Services.Interfaces;
 
 namespace Kupa.Api.Services.Implementations
 {
-    public class EventSurveyAnswerService : UserService, IEventSurveyAnswerService
+    public class EventSurveyAnswerService : UserIdService, IEventSurveyAnswerService
     {
         private readonly IEventSurveyAnswerRepository _eventSurveyAnswerRepository;
         private readonly IEventSurveyQuestionRepository _eventSurveyQuestionRepository;

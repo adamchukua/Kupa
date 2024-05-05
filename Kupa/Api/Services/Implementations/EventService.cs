@@ -7,7 +7,7 @@ using Kupa.Api.Services.Interfaces;
 
 namespace Kupa.Api.Services.Implementations
 {
-    public class EventService : UserService, IEventService
+    public class EventService : UserIdService, IEventService
     {
         private readonly ApplicationDbContext _context;
         private readonly IEventRepository _eventRepository;

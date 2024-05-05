@@ -4,7 +4,7 @@ using Kupa.Api.Services.Interfaces;
 
 namespace Kupa.Api.Services.Implementations
 {
-    public class EventCommentService : UserService, IEventCommentService
+    public class EventCommentService : UserIdService, IEventCommentService
     {
         private readonly IEventRepository _eventRepository;
         private readonly IEventCommentRepository _eventCommentRepository;

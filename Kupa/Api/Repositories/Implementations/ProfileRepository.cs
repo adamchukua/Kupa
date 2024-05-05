@@ -17,5 +17,11 @@ namespace Kupa.Api.Repositories.Implementations
             profile.LastUpdatedAt = DateTime.Now;
             await AddItemAsync(profile);
         }
+
+        public async Task UpdateUserProfile(UserProfile profile)
+        {
+            profile.LastUpdatedAt = DateTime.Now;
+            await UpdateItemAsync(profile);
+        }
     }
 }

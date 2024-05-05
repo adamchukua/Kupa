@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Kupa.Api.Dtos;
 using Kupa.Api.Models;
-using Kupa.Api.Services.Implementations;
 using Kupa.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
