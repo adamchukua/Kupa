@@ -6,8 +6,8 @@ namespace Kupa.Api.Repositories.Interfaces
     {
         Task<EventComment> GetByIdAsync(int id);
 
-        Task AddAsync(EventComment commentDto);
+        Task AddAsync(EventComment comment);
 
-        Task DeleteAsync(int id);
+        Task DeleteAsync(EventComment comment);
     }
 }

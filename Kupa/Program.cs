@@ -52,6 +52,7 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(connectionString));
 builder.Services.AddIdentity<User, IdentityRole<int>>()
+    .AddRoles<IdentityRole<int>>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 builder.Services.AddControllers()
@@ -88,6 +89,8 @@ builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IRegistrationRepository, RegistrationRepository>();
 builder.Services.AddTransient<IRegistrationService, RegistrationService>();
+builder.Services.AddTransient<IEventCommentRepository, EventCommentRepository>();
+builder.Services.AddTransient<IEventCommentService, EventCommentService>();
 builder.Services.AddScoped<IExcelExportService, ExcelExportService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -115,5 +118,36 @@ app.MapFallbackToFile("index.html");
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+using (var scope = app.Services.CreateScope())
+{
+    RoleManager<IdentityRole<int>> roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+
+    string[] roles = new[] { "Admin", "User" };
+
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole<int>(role));
+        }
+    }
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    UserManager<User> userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+
+    string adminEmail = "adamchuk.v.1@gmail.com";
+
+    if (await userManager.FindByEmailAsync(adminEmail) == null)
+    {
+        User user = new User { UserName = adminEmail, Email = adminEmail };
+
+        await userManager.CreateAsync(user);
+
+        await userManager.AddToRoleAsync(user, "Admin");
+    }
+}
 
 app.Run();

@@ -20,7 +20,7 @@ namespace Kupa.Api.Controllers
             _mapper = mapper;
         }
 
-        [HttpPost("event/{id}")]
+        [HttpPost("event/{eventId}")]
         [Authorize]
         public async Task<IActionResult> AddNewComment(int eventId, CommentDto commentDto)
         {

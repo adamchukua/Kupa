@@ -40,7 +40,7 @@ namespace Kupa.Api.Controllers
 
             if (result.Succeeded)
             {
-                token = GenerateJwtToken(user);
+                token = await GenerateJwtToken(user);
 
                 await _profileRepository.CreateUserProfile(UserProfile.Create(user.Id));
 
@@ -61,14 +61,14 @@ namespace Kupa.Api.Controllers
             if (result.Succeeded)
             {
                 user = await _userManager.FindByEmailAsync(model.Email);
-                token = GenerateJwtToken(user);
+                token = await GenerateJwtToken(user);
 
                 return Ok(new { Token = token });
             }
             return Unauthorized();
         }
 
-        private string GenerateJwtToken(User user)
+        private async Task<string> GenerateJwtToken(User user)
         {
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
             byte[] key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
@@ -78,6 +78,7 @@ namespace Kupa.Api.Controllers
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(ClaimTypes.Role, await _userManager.IsInRoleAsync(user, "Admin") ? "Admin" : "User")
                 }),
                 // Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiryMinutes"])),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),

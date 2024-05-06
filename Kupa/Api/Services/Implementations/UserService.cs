@@ -6,7 +6,7 @@ using Kupa.Api.Services.Interfaces;
 
 namespace Kupa.Api.Services.Implementations
 {
-    public class UserService : UserIdService, IUserService
+    public class UserService : CurrentUserService, IUserService
     {
         private readonly IUserRepository _userRepository;
         private readonly IProfileRepository _profileRepository;
@@ -32,7 +32,7 @@ namespace Kupa.Api.Services.Implementations
                 throw new ArgumentException($"User with id {id} doesn't exist");
             }
 
-            if (user.Id != UserId)
+            if (user.Id != UserId && UserRole != "Admin")
             {
                 throw new UnauthorizedAccessException($"You can't delete user with id {id}");
             }

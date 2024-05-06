@@ -5,13 +5,12 @@ using Kupa.Api.Services.Interfaces;
 
 namespace Kupa.Api.Services.Implementations
 {
-    public class RegistrationService : UserIdService, IRegistrationService
+    public class RegistrationService : CurrentUserService, IRegistrationService
     {
         private ApplicationDbContext _context;
         private readonly IEventSurveyAnswerService _eventSurveyAnswerService;
         private readonly IEventRepository _eventRepository;
         private readonly IRegistrationRepository _registrationRepository;
-        private readonly IEventSurveyAnswerRepository _eventSurveyAnswerRepository;
         private readonly IUserRepository _userRepository;
 
         public RegistrationService(

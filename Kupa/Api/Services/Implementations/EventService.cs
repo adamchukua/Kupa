@@ -7,7 +7,7 @@ using Kupa.Api.Services.Interfaces;
 
 namespace Kupa.Api.Services.Implementations
 {
-    public class EventService : UserIdService, IEventService
+    public class EventService : CurrentUserService, IEventService
     {
         private readonly ApplicationDbContext _context;
         private readonly IEventRepository _eventRepository;
@@ -84,7 +84,7 @@ namespace Kupa.Api.Services.Implementations
                 throw new KeyNotFoundException($"Event with id {id} not found.");
             }
 
-            if (eventObject.CreatedByUserId != UserId)
+            if (eventObject.CreatedByUserId != UserId && UserRole != "Admin")
             {
                 throw new UnauthorizedAccessException("You don't have access to delete this event.");
             }

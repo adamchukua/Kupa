@@ -4,7 +4,7 @@ using Kupa.Api.Services.Interfaces;
 
 namespace Kupa.Api.Services.Implementations
 {
-    public class EventCommentService : UserIdService, IEventCommentService
+    public class EventCommentService : CurrentUserService, IEventCommentService
     {
         private readonly IEventRepository _eventRepository;
         private readonly IEventCommentRepository _eventCommentRepository;
@@ -36,12 +36,17 @@ namespace Kupa.Api.Services.Implementations
         {
             EventComment eventComment = await _eventCommentRepository.GetByIdAsync(id);
 
-            if (eventComment.CreatedByUserId != UserId)
+            if (eventComment == null)
+            {
+                throw new ArgumentException($"Comment with id {id} doesn't exist");
+            }
+
+            if (eventComment.CreatedByUserId != UserId && UserRole != "Admin")
             {
                 throw new UnauthorizedAccessException("You don't have access to delete this comment.");
             }
 
-            await _eventCommentRepository.DeleteAsync(id);
+            await _eventCommentRepository.DeleteAsync(eventComment);
         }
 
         private async Task CheckIfEventExists(int eventId)

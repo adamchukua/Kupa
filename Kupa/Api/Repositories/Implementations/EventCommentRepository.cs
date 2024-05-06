@@ -2,6 +2,7 @@
 using Kupa.Api.Models;
 using Kupa.Api.Repositories.Base;
 using Kupa.Api.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Kupa.Api.Repositories.Implementations
 {
@@ -11,9 +12,10 @@ namespace Kupa.Api.Repositories.Implementations
         {
         }
 
-        public async Task<EventComment> GetByIdAsync (int id)
+        public async Task<EventComment> GetByIdAsync(int id)
         {
-            return await GetByIdAsync(id);
+            return await Where(c => c.Id == id)
+                .FirstOrDefaultAsync();
         }
 
         public async Task AddAsync(EventComment comment)
@@ -23,9 +25,9 @@ namespace Kupa.Api.Repositories.Implementations
             await AddItemAsync(comment);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(EventComment comment)
         {
-            await DeleteAsync(id);
+            await DeleteItemAsync(comment);
         }
     }
 }
