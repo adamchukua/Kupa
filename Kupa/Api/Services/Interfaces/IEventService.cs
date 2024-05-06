@@ -7,7 +7,7 @@ namespace Kupa.Api.Services.Interfaces
     {
         Task<Event> GetEventByIdAsync(int id);
 
-        Task<IEnumerable<Event>> GetAllEventsAsync();
+        Task<IEnumerable<Event>> GetEventsAsync(bool createdByUser, bool participatedByUser);
 
         Task<IEnumerable<Event>> SearchEventsAsync(string keyword, int[] categories, int[] cities);
 

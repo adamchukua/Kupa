@@ -4,6 +4,7 @@ using Kupa.Api.Models;
 using Kupa.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Kupa.Api.Controllers
 {
@@ -11,28 +12,32 @@ namespace Kupa.Api.Controllers
     [ApiController]
     public class EventCommentController : ControllerBase
     {
-        private readonly IEventCommentService _eventCommentService;
-        private readonly IMapper _mapper;
+        private readonly IEventCommentService eventCommentService;
+        private readonly IValidator validator;
+        private readonly IMapper mapper;
 
-        public EventCommentController(IEventCommentService eventCommentService, IMapper mapper) 
+        public EventCommentController(
+            IEventCommentService eventCommentService, 
+            IValidator validator,
+            IMapper mapper)
         {
-            _eventCommentService = eventCommentService;
-            _mapper = mapper;
+            this.eventCommentService = eventCommentService;
+            this.validator = validator;
+            this.mapper = mapper;
         }
 
         [HttpPost("event/{eventId}")]
         [Authorize]
         public async Task<IActionResult> AddNewComment(int eventId, CommentDto commentDto)
         {
-            if (commentDto == null || string.IsNullOrEmpty(commentDto.Comment))
-            {
-                return BadRequest("Comment is null or empty.");
-            }
+            validator.PositiveInt(eventId, nameof(eventId));
+            validator.ObjectNull(commentDto, nameof(commentDto));
+            validator.StringNullOrEmpty(commentDto.Comment, "Comment");
 
-            EventComment eventComment = _mapper.Map<EventComment>(commentDto);
+            EventComment eventComment = mapper.Map<EventComment>(commentDto);
             eventComment.EventId = eventId;
             
-            await _eventCommentService.AddNewCommentAsync(eventComment);
+            await eventCommentService.AddNewCommentAsync(eventComment);
             return NoContent();
         }
 
@@ -40,12 +45,9 @@ namespace Kupa.Api.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteComment(int id)
         {
-            if (id < 0)
-            {
-                return BadRequest("Id of comment must be positive number.");
-            }
+            validator.PositiveInt(id, nameof(id));
 
-            await _eventCommentService.DeleteCommentAsync(id);
+            await eventCommentService.DeleteCommentAsync(id);
             return NoContent();
         }
     }

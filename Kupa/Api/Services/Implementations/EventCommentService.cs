@@ -1,62 +1,46 @@
 ﻿using Kupa.Api.Models;
 using Kupa.Api.Repositories.Interfaces;
 using Kupa.Api.Services.Interfaces;
+using Microsoft.Extensions.Logging;
+using static Microsoft.IO.RecyclableMemoryStreamManager;
 
 namespace Kupa.Api.Services.Implementations
 {
     public class EventCommentService : CurrentUserService, IEventCommentService
     {
-        private readonly IEventRepository _eventRepository;
-        private readonly IEventCommentRepository _eventCommentRepository;
+        private readonly IEventRepository eventRepository;
+        private readonly IEventCommentRepository eventCommentRepository;
+        private IValidator validator;
 
         public EventCommentService(
             IHttpContextAccessor httpContextAccessor, 
             IEventCommentRepository eventCommentRepository,
-            IEventRepository eventRepository) : base(httpContextAccessor)
+            IEventRepository eventRepository,
+            IValidator validator) : base(httpContextAccessor)
         {
-            _eventCommentRepository = eventCommentRepository;
-            _eventRepository = eventRepository;
+            this.eventCommentRepository = eventCommentRepository;
+            this.eventRepository = eventRepository;
+            this.validator = validator;
         }
 
         public async Task AddNewCommentAsync(EventComment comment)
         {
-            await CheckIfEventExists(comment.EventId);
-
-            if (UserId == null)
-            {
-                throw new UnauthorizedAccessException("Not authorized");
-            }
+            validator.ObjectNull(await eventRepository.GetByIdAsync(comment.EventId), string.Empty, $"Event with id {comment.EventId} not found!");
+            validator.AuthorizedUser(UserId);
 
             comment.CreatedByUserId = (int)UserId;
 
-            await _eventCommentRepository.AddAsync(comment);
+            await eventCommentRepository.AddAsync(comment);
         }
 
         public async Task DeleteCommentAsync(int id)
         {
-            EventComment eventComment = await _eventCommentRepository.GetByIdAsync(id);
+            EventComment eventComment = await eventCommentRepository.GetByIdAsync(id);
 
-            if (eventComment == null)
-            {
-                throw new ArgumentException($"Comment with id {id} doesn't exist");
-            }
+            validator.ObjectNull(eventComment, string.Empty, $"Comment with id {id} doesn't exist");
+            validator.AuthorizedOrAdminAction(eventComment.CreatedByUserId, (int)UserId, UserRole, "you can't delete this comment");
 
-            if (eventComment.CreatedByUserId != UserId && UserRole != "Admin")
-            {
-                throw new UnauthorizedAccessException("You don't have access to delete this comment.");
-            }
-
-            await _eventCommentRepository.DeleteAsync(eventComment);
-        }
-
-        private async Task CheckIfEventExists(int eventId)
-        {
-            Event eventObject = await _eventRepository.GetByIdAsync(eventId);
-
-            if (eventObject == null)
-            {
-                throw new KeyNotFoundException($"Event with id {eventId} not found!");
-            }
+            await eventCommentRepository.DeleteAsync(eventComment);
         }
     }
 }

@@ -12,61 +12,60 @@ namespace Kupa.Api.Controllers
     [ApiController]
     public class EventsController : ControllerBase
     {
-        private readonly IEventService _eventService;
-        private readonly IRegistrationService _registrationService;
-        private readonly IExcelExportService _excelExportService;
-        private readonly IMapper _mapper;
+        private readonly IEventService eventService;
+        private readonly IRegistrationService registrationService;
+        private readonly IExcelExportService excelExportService;
+        private readonly IValidator validator;
+        private readonly IMapper mapper;
 
         public EventsController(
             IEventService eventService, 
             IRegistrationService registrationService,
             IExcelExportService excelExportService,
+            IValidator validator,
             IMapper mapper)
         {
-            _eventService = eventService;
-            _registrationService = registrationService;
-            _excelExportService = excelExportService;
-            _mapper = mapper;
+            this.eventService = eventService;
+            this.registrationService = registrationService;
+            this.excelExportService = excelExportService;
+            this.validator = validator;
+            this.mapper = mapper;
         }
 
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> CreateEvent(NewEventDto newEventDto)
         {
-            if (newEventDto == null)
-            {
-                return BadRequest("Event data is null.");
-            }
+            validator.ObjectNull(newEventDto, "EventDto");
 
-            Event eventObject = _mapper.Map<Event>(newEventDto);
+            Event eventObject = mapper.Map<Event>(newEventDto);
 
-            await _eventService.CreateEventAsync(eventObject);
+            await eventService.CreateEventAsync(eventObject);
             return Ok(eventObject);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllEvents()
+        public async Task<IActionResult> GetEvents(bool createdByUser = false, bool participatedByUser = false)
         {
-            IEnumerable<Event> events = await _eventService.GetAllEventsAsync();
+            IEnumerable<Event> events = await eventService.GetEventsAsync(createdByUser, participatedByUser);
             return Ok(events);
         }
 
         [HttpGet("search")]
         public async Task<IActionResult> SearchEvents([FromQuery] string? keyword, [FromQuery] int[] categories, [FromQuery] int[] cities)
         {
-            IEnumerable<Event> events = await _eventService.SearchEventsAsync(keyword, categories, cities);
+            IEnumerable<Event> events = await eventService.SearchEventsAsync(keyword, categories, cities);
             return Ok(events);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetEventById(int id)
         {
-            Event eventObject = await _eventService.GetEventByIdAsync(id);
+            validator.PositiveInt(id, nameof(id));
 
-            if (eventObject == null)
-            {
-                return NotFound();
-            }
+            Event eventObject = await eventService.GetEventByIdAsync(id);
+
+            validator.ObjectNull(eventObject, string.Empty, $"Event with id {id} not found");
 
             return Ok(eventObject);
         }
@@ -75,12 +74,10 @@ namespace Kupa.Api.Controllers
         [Authorize]
         public async Task<IActionResult> UpdateEvent(int id, [FromBody] UpdateEventDto updateEventDto)
         {
-            if (updateEventDto == null)
-            {
-                return BadRequest("Event data is null.");
-            }
+            validator.PositiveInt(id, nameof(id));
+            validator.ObjectNull(updateEventDto, "EventDto");
 
-            await _eventService.UpdateEventAsync(id, updateEventDto);
+            await eventService.UpdateEventAsync(id, updateEventDto);
             return NoContent();
         }
 
@@ -88,7 +85,9 @@ namespace Kupa.Api.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteEvent(int id)
         {
-            await _eventService.DeleteEventAsync(id);
+            validator.PositiveInt(id, nameof(id));
+
+            await eventService.DeleteEventAsync(id);
             return NoContent();
         }
 
@@ -96,14 +95,12 @@ namespace Kupa.Api.Controllers
         [Authorize]
         public async Task<IActionResult> RegisterToEvent(int eventId, SurveyAnswerDto[] answersDto)
         {
-            if (answersDto == null)
-            {
-                return BadRequest("Answers is null or empty.");
-            }
+            validator.PositiveInt(eventId, nameof(eventId));
+            validator.ObjectNull(answersDto, nameof(answersDto));
 
-            EventSurveyAnswer[] eventSurveyAnswers = _mapper.Map<EventSurveyAnswer[]>(answersDto);
+            EventSurveyAnswer[] eventSurveyAnswers = mapper.Map<EventSurveyAnswer[]>(answersDto);
 
-            await _registrationService.Register(eventId, eventSurveyAnswers);
+            await registrationService.Register(eventId, eventSurveyAnswers);
             return NoContent();
         }
 
@@ -111,7 +108,9 @@ namespace Kupa.Api.Controllers
         [Authorize]
         public async Task<IActionResult> UnregisterFromEvent(int eventId)
         {
-            await _registrationService.Unregister(eventId);
+            validator.PositiveInt(eventId, nameof(eventId));
+
+            await registrationService.Unregister(eventId);
             return NoContent();
         }
 
@@ -121,7 +120,7 @@ namespace Kupa.Api.Controllers
         {
             try
             {
-                MemoryStream? excelFile = await _excelExportService.ExportEventParticipantsAnswers(eventId);
+                MemoryStream? excelFile = await excelExportService.ExportEventParticipantsAnswers(eventId);
                 return File(excelFile, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"учасники-{DateTime.Now.ToString("yyyy-MM-dd HH:mm")}.xlsx");
             }
             catch (Exception ex)

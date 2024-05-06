@@ -92,6 +92,7 @@ builder.Services.AddTransient<IRegistrationService, RegistrationService>();
 builder.Services.AddTransient<IEventCommentRepository, EventCommentRepository>();
 builder.Services.AddTransient<IEventCommentService, EventCommentService>();
 builder.Services.AddScoped<IExcelExportService, ExcelExportService>();
+builder.Services.AddScoped<IValidator, Validator>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();

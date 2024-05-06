@@ -6,27 +6,27 @@ namespace Kupa.Api.Services.Implementations
 {
     public class EventSurveyAnswerService : CurrentUserService, IEventSurveyAnswerService
     {
-        private readonly IEventSurveyAnswerRepository _eventSurveyAnswerRepository;
-        private readonly IEventSurveyQuestionRepository _eventSurveyQuestionRepository;
+        private readonly IEventSurveyAnswerRepository eventSurveyAnswerRepository;
+        private readonly IEventSurveyQuestionRepository eventSurveyQuestionRepository;
+        private readonly IValidator validator;
 
         public EventSurveyAnswerService(
             IHttpContextAccessor httpContextAccessor, 
             IEventSurveyAnswerRepository eventSurveyAnswerRepository,
-            IEventSurveyQuestionRepository eventSurveyQuestionRepository) : base(httpContextAccessor)
+            IEventSurveyQuestionRepository eventSurveyQuestionRepository,
+            IValidator validator) : base(httpContextAccessor)
         {
-            _eventSurveyAnswerRepository = eventSurveyAnswerRepository;
-            _eventSurveyQuestionRepository = eventSurveyQuestionRepository;
+            this.eventSurveyAnswerRepository = eventSurveyAnswerRepository;
+            this.eventSurveyQuestionRepository = eventSurveyQuestionRepository;
+            this.validator = validator;
         }
 
         public async Task AddAnswersAsync(int eventId, EventSurveyAnswer[] answers)
         {
-            if (UserId == null)
-            {
-                throw new UnauthorizedAccessException("Not authorized");
-            };
+            validator.AuthorizedUser(UserId);
 
             IEnumerable<EventSurveyQuestion> eventSurveyQuestions =
-                await _eventSurveyQuestionRepository.GetSurveyQuestionsByEventId(eventId);
+                await eventSurveyQuestionRepository.GetSurveyQuestionsByEventId(eventId);
             IEnumerable<int> requiredQuestionIds = eventSurveyQuestions
                 .Where(e => e.IsRequired)
                 .Select(q => q.Id);
@@ -43,7 +43,7 @@ namespace Kupa.Api.Services.Implementations
                 answer.CreatedByUserId = (int)UserId;
             }
 
-            await _eventSurveyAnswerRepository.AddAnswers(answers);
+            await eventSurveyAnswerRepository.AddAnswers(answers);
         }
     }
 }

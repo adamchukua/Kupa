@@ -6,7 +6,7 @@ namespace Kupa.Api.Repositories.Interfaces
     {
         Task<Event> GetByIdAsync(int id);
 
-        Task<IEnumerable<Event>> GetAllAsync();
+        Task<IEnumerable<Event>> GetAsync(int userId, bool createdByUser, bool participatedByUser);
 
         Task<IEnumerable<Event>> SearchAsync(string keyword, int[] categories, int[] cities);
 

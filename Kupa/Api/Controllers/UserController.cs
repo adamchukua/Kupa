@@ -11,18 +11,22 @@ namespace Kupa.Api.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IUserService _userSerice;
+        private readonly IUserService userSerice;
+        private readonly IValidator validator;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IValidator validator)
         {
-            _userSerice = userService;
+            userSerice = userService;
+            this.validator = validator;
         }
 
         [HttpDelete("{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteUserAndProfile(int id)
         {
-            await _userSerice.DeleteUserAndProfile(id);
+            validator.PositiveInt(id, nameof(id));
+
+            await userSerice.DeleteUserAndProfile(id);
             return NoContent();
         }
 
@@ -30,7 +34,10 @@ namespace Kupa.Api.Controllers
         [Authorize]
         public async Task<IActionResult> UpdateProfile(int userId, UserProfileDto userProfileDto)
         {
-            await _userSerice.UpdateUserProfile(userId, userProfileDto);
+            validator.PositiveInt(userId, nameof(userId));
+            validator.ObjectNull(userProfileDto, nameof(userProfileDto));
+
+            await userSerice.UpdateUserProfile(userId, userProfileDto);
             return NoContent();
         }
     }

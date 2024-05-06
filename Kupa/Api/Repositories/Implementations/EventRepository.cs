@@ -8,8 +8,11 @@ namespace Kupa.Api.Repositories.Implementations
 {
     public class EventRepository : RepositoryBase<Event>, IEventRepository
     {
-        public EventRepository(ApplicationDbContext context) : base(context)
+        private readonly IRegistrationRepository _registrationRepository;
+
+        public EventRepository(ApplicationDbContext context, IRegistrationRepository registrationRepository) : base(context)
         {
+            _registrationRepository = registrationRepository;
         }
 
         public async Task<Event> GetByIdAsync(int id)
@@ -28,9 +31,33 @@ namespace Kupa.Api.Repositories.Implementations
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<Event>> GetAllAsync()
+        public async Task<IEnumerable<Event>> GetAsync(int userId, bool createdByUser, bool participatedByUser)
         {
-            return await GetAllItemsAsync();
+            IQueryable<Event> query = null;
+
+            if (createdByUser)
+            {
+                query = Where(e => e.CreatedByUserId == userId);
+            }
+
+            if (participatedByUser)
+            {
+                if (query == null)
+                {
+                    query = Where(e => e.EventRegistrations.Any(r => r.UserId == userId));
+                }
+
+                query = query.Where(e => e.EventRegistrations.Any(r => r.UserId == userId));
+            }
+
+            if (!createdByUser && !participatedByUser)
+            {
+                return await GetAllItemsAsync();
+            }
+            else
+            {
+                return await query.ToListAsync();
+            }
         }
 
         public async Task<IEnumerable<Event>> SearchAsync(string? keyword, int[] categories, int[] cities)
@@ -64,7 +91,7 @@ namespace Kupa.Api.Repositories.Implementations
 
             if (query == null)
             {
-                return await GetAllAsync();
+                return await GetAllItemsAsync();
             }
 
             return await query.ToListAsync();

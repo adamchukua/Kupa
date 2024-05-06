@@ -9,11 +9,12 @@ namespace Kupa.Api.Services.Implementations
 {
     public class EventService : CurrentUserService, IEventService
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IEventRepository _eventRepository;
-        private readonly IEventSurveyQuestionRepository _surveyQuestionRepository;
-        private readonly ILocationRepository _locationRepository;
-        private readonly IMapper _mapper;
+        private readonly ApplicationDbContext context;
+        private readonly IEventRepository eventRepository;
+        private readonly IEventSurveyQuestionRepository surveyQuestionRepository;
+        private readonly ILocationRepository locationRepository;
+        private readonly IValidator validator;
+        private readonly IMapper mapper;
 
         public EventService(
             ApplicationDbContext context,
@@ -21,41 +22,40 @@ namespace Kupa.Api.Services.Implementations
             IEventRepository eventRepository,
             IEventSurveyQuestionRepository surveyQuestionRepository,
             ILocationRepository locationRepository,
+            IValidator validator,
             IMapper mapper) : base(httpContextAccessor) 
         {
-            _context = context;
-            _eventRepository = eventRepository;
-            _surveyQuestionRepository = surveyQuestionRepository;
-            _locationRepository = locationRepository;
-            _mapper = mapper;
+            this.context = context;
+            this.eventRepository = eventRepository;
+            this.surveyQuestionRepository = surveyQuestionRepository;
+            this.locationRepository = locationRepository;
+            this.validator = validator;
+            this.mapper = mapper;
         }
 
         public async Task CreateEventAsync(Event eventObject)
         {
-            if (UserId == null)
-            {
-                throw new UnauthorizedAccessException("Authorize for this action.");
-            }
+            validator.AuthorizedUser(UserId);
 
             Location foundLocation = null;
 
             switch (eventObject.Location.TypeId)
             {
                 case Enums.LocationTypeId.Offline:
-                    foundLocation = await _locationRepository.FindByAddressAsync(eventObject.Location.Address);
+                    foundLocation = await locationRepository.FindByAddressAsync(eventObject.Location.Address);
                     break;
                 case Enums.LocationTypeId.Online:
-                    foundLocation = await _locationRepository.FindByUrlAsync(eventObject.Location.Url);
+                    foundLocation = await locationRepository.FindByUrlAsync(eventObject.Location.Url);
                     break;
             }
 
-            using (var transaction = _context.Database.BeginTransaction())
+            using (var transaction = context.Database.BeginTransaction())
             {
                 try
                 {
                     if (foundLocation == null)
                     {
-                        await _locationRepository.AddAsync(eventObject.Location);
+                        await locationRepository.AddAsync(eventObject.Location);
                     }
                     else
                     {
@@ -64,7 +64,7 @@ namespace Kupa.Api.Services.Implementations
                     }
 
                     eventObject.CreatedByUserId = (int)UserId;
-                    await _eventRepository.AddAsync(eventObject);
+                    await eventRepository.AddAsync(eventObject);
                     transaction.Commit();
                 }
                 catch (Exception)
@@ -77,46 +77,39 @@ namespace Kupa.Api.Services.Implementations
 
         public async Task DeleteEventAsync(int id)
         {
-            Event eventObject = await _eventRepository.GetByIdAsync(id);
+            Event eventObject = await eventRepository.GetByIdAsync(id);
 
-            if (eventObject == null)
-            {
-                throw new KeyNotFoundException($"Event with id {id} not found.");
-            }
+            validator.ObjectNull(eventObject, string.Empty, $"Event with id {id} not found");
+            validator.AuthorizedOrAdminAction(eventObject.CreatedByUserId, (int)UserId, UserRole, "you can't delete this event");
 
-            if (eventObject.CreatedByUserId != UserId && UserRole != "Admin")
-            {
-                throw new UnauthorizedAccessException("You don't have access to delete this event.");
-            }
-
-            using (var transaction = _context.Database.BeginTransaction())
+            using (var transaction = context.Database.BeginTransaction())
             {
                 try
                 {
                     if (eventObject.EventSurveyQuestions != null)
                     {
-                        _context.RemoveRange(eventObject.EventSurveyQuestions);
+                        context.RemoveRange(eventObject.EventSurveyQuestions);
                     }
 
                     if (eventObject.EventComments != null)
                     {
-                        _context.RemoveRange(eventObject.EventComments);
+                        context.RemoveRange(eventObject.EventComments);
                     }
 
-                    await _eventRepository.DeleteAsync(eventObject);
+                    await eventRepository.DeleteAsync(eventObject);
 
-                    Location location = await _locationRepository.GetByIdAsync(eventObject.LocationId);
+                    Location location = await locationRepository.GetByIdAsync(eventObject.LocationId);
             
                     if (location == null)
                     {
                         throw new KeyNotFoundException($"Location with id {id} not found.");
                     }
 
-                    bool eventsWithLocationExists = await _eventRepository.ExistsByLocationIdAsync(location.Id);
+                    bool eventsWithLocationExists = await eventRepository.ExistsByLocationIdAsync(location.Id);
 
                     if (!eventsWithLocationExists)
                     {
-                        await _locationRepository.DeleteAsync(location);
+                        await locationRepository.DeleteAsync(location);
                     }
 
                     transaction.Commit();
@@ -129,73 +122,74 @@ namespace Kupa.Api.Services.Implementations
             }
         }
 
-        public async Task<IEnumerable<Event>> GetAllEventsAsync()
+        public async Task<IEnumerable<Event>> GetEventsAsync(bool createdByUser, bool participatedByUser)
         {
-            return await _eventRepository.GetAllAsync();
+            if (UserId == null)
+            {
+                if (createdByUser || participatedByUser)
+                {
+                    throw new UnauthorizedAccessException("To get events you need authorize first");
+                }
+
+                return await eventRepository.GetAsync(0, false, false);
+            } else
+            {
+                return await eventRepository.GetAsync((int)UserId, createdByUser, participatedByUser);
+            }
         }
 
         public async Task<IEnumerable<Event>> SearchEventsAsync(string? keyword, int[] categories, int[] cities)
         {
-            return await _eventRepository.SearchAsync(keyword, categories, cities);
+            return await eventRepository.SearchAsync(keyword, categories, cities);
         }
 
         public async Task<Event> GetEventByIdAsync(int id)
         {
-            return await _eventRepository.GetByIdAsync(id);
+            return await eventRepository.GetByIdAsync(id);
         }
 
         public async Task UpdateEventAsync(int id, UpdateEventDto updateEventDto)
         {
-            Event eventObject = await _eventRepository.GetByIdAsync(id);
+            Event eventObject = await eventRepository.GetByIdAsync(id);
 
-            if (eventObject == null)
-            {
-                throw new KeyNotFoundException($"Event with id {id} not found.");
-            }
+            validator.ObjectNull(eventObject, string.Empty, $"Event with id {id} not found.");
+            validator.AuthorizedAction(eventObject.CreatedByUserId, (int)UserId, "you can't update this event");
 
-            if (eventObject.CreatedByUserId != UserId)
-            {
-                throw new UnauthorizedAccessException("You don't have access to update this event.");
-            }
+            Location location = await locationRepository.GetByIdAsync(eventObject.LocationId);
 
-            Location location = await _locationRepository.GetByIdAsync(eventObject.LocationId);
+            validator.ObjectNull(location, string.Empty, $"Location with id {id} not found");
 
-            if (location == null)
-            {
-                throw new KeyNotFoundException($"Location with id {id} not found.");
-            }
+            mapper.Map(updateEventDto, eventObject);
 
-            _mapper.Map(updateEventDto, eventObject);
+            int eventsCountWithLocationId = await eventRepository.CountEventsByLocationIdAsync(location.Id);
 
-            int eventsCountWithLocationId = await _eventRepository.CountEventsByLocationIdAsync(location.Id);
-
-            using (var transaction = _context.Database.BeginTransaction())
+            using (var transaction = context.Database.BeginTransaction())
             {
                 try
                 {
                     if (!EqualLocations(updateEventDto, location))
                     {
-                        _mapper.Map(updateEventDto, location);
+                        mapper.Map(updateEventDto, location);
 
                         if (eventsCountWithLocationId > 1)
                         {
-                            await _locationRepository.AddAsync(Location.CreateNewLocation(location));
-                            eventObject.LocationId = (await _locationRepository.FindByAddressOrUrlAsync(updateEventDto.Location)).Id;
+                            await locationRepository.AddAsync(Location.CreateNewLocation(location));
+                            eventObject.LocationId = (await locationRepository.FindByAddressOrUrlAsync(updateEventDto.Location)).Id;
                         }
                         else
                         {
-                            await _locationRepository.UpdateAsync(location);
+                            await locationRepository.UpdateAsync(location);
                         }
                     }
 
-                    IEnumerable<EventSurveyQuestion> eventSurveyQuestions = await _surveyQuestionRepository.GetSurveyQuestionsByEventId(id);
+                    IEnumerable<EventSurveyQuestion> eventSurveyQuestions = await surveyQuestionRepository.GetSurveyQuestionsByEventId(id);
                     if (eventSurveyQuestions != null)
                     {
-                        await _surveyQuestionRepository.DeleteRange(eventSurveyQuestions);
+                        await surveyQuestionRepository.DeleteRange(eventSurveyQuestions);
                     }
                     
                     eventObject.Location = null;
-                    await _eventRepository.UpdateAsync(eventObject);
+                    await eventRepository.UpdateAsync(eventObject);
                     transaction.Commit();
                 }
                 catch (Exception)
