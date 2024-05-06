@@ -16,7 +16,8 @@ namespace Kupa.Api.Mapping
                 {
                     TypeId = src.LocationTypeId,
                     Address = src.LocationTypeId == LocationTypeId.Offline ? src.Location : null,
-                    Url = src.LocationTypeId == LocationTypeId.Online ? src.Location : null
+                    Url = src.LocationTypeId == LocationTypeId.Online ? src.Location : null,
+                    CityId = src.CityId
                 }))
                 .ForMember(dest => dest.EventSurveyQuestions, opt => opt.MapFrom(src => src.SurveyQuestions));
 
@@ -25,7 +26,8 @@ namespace Kupa.Api.Mapping
                 {
                     TypeId = src.LocationTypeId,
                     Address = src.LocationTypeId == LocationTypeId.Offline ? src.Location : null,
-                    Url = src.LocationTypeId == LocationTypeId.Online ? src.Location : null
+                    Url = src.LocationTypeId == LocationTypeId.Online ? src.Location : null,
+                    CityId = src.CityId
                 }))
                 .ForMember(dest => dest.EventSurveyQuestions, opt => opt.MapFrom(src => src.SurveyQuestions));
         }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Kupa.Api.Dtos;
 using Kupa.Api.Models;
+using Kupa.Api.Repositories.Interfaces;
 using Kupa.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,15 +14,18 @@ namespace Kupa.Api.Controllers
     {
         private readonly IEventService _eventService;
         private readonly IRegistrationService _registrationService;
+        private readonly IExcelExportService _excelExportService;
         private readonly IMapper _mapper;
 
         public EventsController(
             IEventService eventService, 
             IRegistrationService registrationService,
+            IExcelExportService excelExportService,
             IMapper mapper)
         {
             _eventService = eventService;
             _registrationService = registrationService;
+            _excelExportService = excelExportService;
             _mapper = mapper;
         }
 
@@ -102,6 +106,21 @@ namespace Kupa.Api.Controllers
         {
             await _registrationService.Unregister(eventId);
             return NoContent();
+        }
+
+        [HttpGet("export/{eventId}")]
+        [Authorize]
+        public async Task<IActionResult> ExportParticipantsAnswers(int eventId)
+        {
+            try
+            {
+                MemoryStream? excelFile = await _excelExportService.ExportEventParticipantsAnswers(eventId);
+                return File(excelFile, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"учасники-{DateTime.Now.ToString("yyyy-MM-dd HH:mm")}.xlsx");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Could not export data: " + ex.Message);
+            }
         }
     }
 }

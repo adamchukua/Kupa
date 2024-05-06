@@ -17,6 +17,8 @@ namespace Kupa.Api.Models
 
         public virtual IEnumerable<EventSurveyAnswer> EventSurveyAnswers { get; set; }
 
+        public virtual User User { get; set; }
+
         public static EventRegistration CreateRegistration(int eventId, int userId)
         {
             return new EventRegistration { UserId = userId, EventId = eventId };

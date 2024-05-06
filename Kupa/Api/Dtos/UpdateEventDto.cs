@@ -12,6 +12,10 @@ namespace Kupa.Api.Dtos
 
         public string Location { get; set; }
 
+        public int CategoryId { get; set; }
+
+        public int CityId { get; set; }
+
         public List<SurveyQuestionDto> SurveyQuestions { get; set; }
     }
 }

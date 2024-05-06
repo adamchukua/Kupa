@@ -19,8 +19,12 @@ namespace Kupa.Api.Repositories.Implementations
                 .Include(e => e.Location)
                 .Include(e => e.User)
                 .Include(e => e.EventComments)
-                .Include(e => e.EventSurveyQuestions)
+                .Include(e => e.EventRegistrations)
                     .ThenInclude(e => e.EventSurveyAnswers)
+                .Include(e => e.EventRegistrations)
+                    .ThenInclude(e => e.User)
+                        .ThenInclude(e => e.Profile)
+                .Include(e => e.EventSurveyQuestions)
                 .FirstOrDefaultAsync();
         }
 
