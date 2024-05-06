@@ -33,6 +33,43 @@ namespace Kupa.Api.Repositories.Implementations
             return await GetAllItemsAsync();
         }
 
+        public async Task<IEnumerable<Event>> SearchAsync(string? keyword, int[] categories, int[] cities)
+        {
+            IQueryable<Event> query = null;
+
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                query = Where(e => e.Title.Contains(keyword) || (e.Description != null && e.Description.Contains(keyword)));
+            }
+
+            if (categories.Length > 0)
+            {
+                if (query == null)
+                {
+                    query = Where(e => categories.Contains(e.CategoryId));
+                }
+
+                query = query.Where(e => categories.Contains(e.CategoryId));
+            }
+
+            if (cities.Length > 0)
+            {
+                if (query == null)
+                {
+                    query = Where(e => cities.Contains(e.CityId));
+                }
+
+                query = query.Where(e => cities.Contains(e.CityId));
+            }
+
+            if (query == null)
+            {
+                return await GetAllAsync();
+            }
+
+            return await query.ToListAsync();
+        }
+
         public async Task AddAsync(Event eventObject)
         {
             DateTime now = DateTime.Now;

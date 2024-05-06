@@ -51,6 +51,13 @@ namespace Kupa.Api.Controllers
             return Ok(events);
         }
 
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchEvents([FromQuery] string? keyword, [FromQuery] int[] categories, [FromQuery] int[] cities)
+        {
+            IEnumerable<Event> events = await _eventService.SearchEventsAsync(keyword, categories, cities);
+            return Ok(events);
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetEventById(int id)
         {

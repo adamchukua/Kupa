@@ -8,6 +8,8 @@ namespace Kupa.Api.Repositories.Interfaces
 
         Task<IEnumerable<Event>> GetAllAsync();
 
+        Task<IEnumerable<Event>> SearchAsync(string keyword, int[] categories, int[] cities);
+
         Task AddAsync(Event eventObject);
 
         Task UpdateAsync(Event eventObject);

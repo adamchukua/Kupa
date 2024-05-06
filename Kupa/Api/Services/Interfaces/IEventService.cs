@@ -9,6 +9,8 @@ namespace Kupa.Api.Services.Interfaces
 
         Task<IEnumerable<Event>> GetAllEventsAsync();
 
+        Task<IEnumerable<Event>> SearchEventsAsync(string keyword, int[] categories, int[] cities);
+
         Task CreateEventAsync(Event eventObject);
 
         Task UpdateEventAsync(int id, UpdateEventDto eventDto);

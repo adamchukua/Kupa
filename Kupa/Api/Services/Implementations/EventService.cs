@@ -134,6 +134,11 @@ namespace Kupa.Api.Services.Implementations
             return await _eventRepository.GetAllAsync();
         }
 
+        public async Task<IEnumerable<Event>> SearchEventsAsync(string? keyword, int[] categories, int[] cities)
+        {
+            return await _eventRepository.SearchAsync(keyword, categories, cities);
+        }
+
         public async Task<Event> GetEventByIdAsync(int id)
         {
             return await _eventRepository.GetByIdAsync(id);
