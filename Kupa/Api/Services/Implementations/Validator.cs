@@ -26,7 +26,7 @@ namespace Kupa.Api.Services.Implementations
 
         public void AuthorizedUser(int? userId)
         {
-            if (userId != 0 && userId != null)
+            if (userId == 0 || userId == null)
             {
                 throw new UnauthorizedAccessException("User isn't authorized");
             }
