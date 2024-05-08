@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchEvents } from './eventsSlice';
 
-const EventsPage = () => {
+const EventsList = () => {
   const dispatch = useDispatch();
   const { events, loading, error } = useSelector((state) => state.events);
 
@@ -20,8 +20,10 @@ const EventsPage = () => {
         <div className="grid grid-cols-3 gap-4">
           {events.map((event) => (
             <div key={event.id} className="bg-white p-4 shadow rounded">
-              <h2 className="font-bold text-lg">{event.title}</h2>
-              <p>{event.description}</p>
+              <a href={"events/" + event.id}>
+                <h2 className="font-bold text-lg">{event.title}</h2>
+                <p>{event.description}</p>
+              </a>
             </div>
           ))}
         </div>
@@ -30,4 +32,4 @@ const EventsPage = () => {
   );
 };
 
-export default EventsPage;
+export default EventsList;

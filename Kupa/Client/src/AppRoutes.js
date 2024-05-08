@@ -1,7 +1,6 @@
-import { Counter } from "./features/counter/Counter";
-import EventsPage from "./features/events/EventsPage";
+import Home from "./components/Home";
 import EventDetailsPage from "./features/events/EventDetailsPage";
-import { Home } from "./components/Home";
+import Login from "./features/auth/Login";
 
 const AppRoutes = [
   {
@@ -9,12 +8,8 @@ const AppRoutes = [
     element: <Home />
   },
   {
-    path: '/counter',
-    element: <Counter />
-  },
-  {
-    path: '/events',
-    element: <EventsPage />
+    path: '/login',
+    element: <Login />
   },
   {
     path: '/events/:eventId',

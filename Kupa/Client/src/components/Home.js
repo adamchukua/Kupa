@@ -1,15 +1,16 @@
-import React, { Component } from 'react';
+import React from 'react';
+import EventsList from '../features/events/EventsList';
 
-export class Home extends Component {
-  static displayName = Home.name;
+const Home = () => {
+  return (
+    <>
+      <h1 className="text-3xl font-bold underline">
+        Hello world!
+      </h1>
 
-  render() {
-    return (
-      <div>
-        <h1 className="text-3xl font-bold underline">
-            Hello world!
-        </h1>
-      </div>
-    );
-  }
-}
+      <EventsList />
+    </>
+  );
+};
+
+export default Home;

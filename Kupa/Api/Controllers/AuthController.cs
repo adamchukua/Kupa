@@ -44,7 +44,20 @@ namespace Kupa.Api.Controllers
 
                 await _profileRepository.CreateUserProfile(UserProfile.Create(user.Id));
 
-                return Ok(new { Token = token });
+                Response.Cookies.Append(
+                    "AuthToken",
+                    token,
+                    new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        IsEssential = true,
+                        SameSite = SameSiteMode.None,
+                        Expires = DateTime.UtcNow.AddDays(7)
+                    }
+                );
+
+                return Ok(new { Message = "Authentication successful" });
             }
 
             return BadRequest(result.Errors);
@@ -63,9 +76,29 @@ namespace Kupa.Api.Controllers
                 user = await _userManager.FindByEmailAsync(model.Email);
                 token = await GenerateJwtToken(user);
 
-                return Ok(new { Token = token });
+                Response.Cookies.Append(
+                    "AuthToken",
+                    token,
+                    new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        IsEssential = true,
+                        SameSite = SameSiteMode.None,
+                        Expires = DateTime.UtcNow.AddDays(7)
+                    }
+                );
+
+                return Ok(new { Message = "Authentication successful" });
             }
             return Unauthorized();
+        }
+
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("AuthToken");
+            return Ok(new { Message = "Logged out successfully" });
         }
 
         private async Task<string> GenerateJwtToken(User user)
