@@ -40,7 +40,7 @@ namespace Kupa.Api.Services.Implementations
         {
             User user = await userRepository.GetByIdAsync(userId);
 
-            validator.ObjectNull(user, string.Empty, $"User with id {id} doesn't exist");
+            validator.ObjectNull(user, string.Empty, $"User with id {userId} doesn't exist");
             validator.AuthorizedAction(user.Id, (int)UserId, "you can't update this user");
 
             UserProfile profile = mapper.Map<UserProfile>(userProfileDto);
