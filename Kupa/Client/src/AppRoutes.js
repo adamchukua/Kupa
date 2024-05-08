@@ -1,5 +1,6 @@
 import { Counter } from "./features/counter/Counter";
-import { FetchData } from "./components/FetchData";
+import EventsPage from "./features/events/EventsPage";
+import EventDetailsPage from "./features/events/EventDetailsPage";
 import { Home } from "./components/Home";
 
 const AppRoutes = [
@@ -12,8 +13,12 @@ const AppRoutes = [
     element: <Counter />
   },
   {
-    path: '/fetch-data',
-    element: <FetchData />
+    path: '/events',
+    element: <EventsPage />
+  },
+  {
+    path: '/events/:eventId',
+    element: <EventDetailsPage />
   }
 ];
 
