@@ -49,6 +49,14 @@ builder.Services.AddSwaggerGen(c =>
         new List<string>()
     }});
 });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin", builder =>
+        builder.WithOrigins("https://localhost:44454")
+               .AllowAnyMethod()
+               .AllowAnyHeader()
+               .AllowCredentials());
+});
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(connectionString));
 builder.Services.AddIdentity<User, IdentityRole<int>>()
@@ -107,6 +115,8 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
+app.UseCors("AllowSpecificOrigin");
 
 app.UseAuthentication();
 app.UseAuthorization();
